@@ -73,7 +73,7 @@ export default class Carousel extends React.Component {
     if (this.state.transitionNext) {
       length = `-${this.state.elementWidth}`;
     } else if (this.state.transitionPrev) {
-      length = `${this.state.elementWidth}`;
+      length = this.state.elementWidth;
     } else {
       return {};
     }

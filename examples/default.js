@@ -2,7 +2,7 @@
 
 import React from "react";
 import { render } from "react-dom";
-import Carousel from "./Carousel";
+import Carousel from "../src/Carousel";
 
 const elements = [
   { src: "https://www.placecage.com/400/300" },
@@ -15,7 +15,11 @@ const elements = [
 
 render(
   <Carousel>
-    {elements.map(el => <img src={el.src} alt="carousel" />)}
+    {elements.map((el, index) => (
+      <a key={index}>
+        <img src={el.src} alt="carousel" />
+      </a>
+    ))}
   </Carousel>,
   document.getElementById("root")
 );
