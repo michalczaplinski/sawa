@@ -1,7 +1,7 @@
-/* global document */
+/* global test, expect */
 
 import React from "react";
-import { render } from "react-dom";
+import { mount } from "enzyme";
 import Carousel from "../src/components/Carousel";
 
 const elements = [
@@ -13,13 +13,14 @@ const elements = [
   { src: "https://www.placecage.com/g/400/300" }
 ];
 
-render(
-  <Carousel>
-    {elements.map((el, index) => (
-      <a key={index}>
-        <img src={el.src} alt="carousel" />
-      </a>
-    ))}
-  </Carousel>,
-  document.getElementById("root")
-);
+test("default Carousel", () => {
+  const carousel = mount(
+    <Carousel>
+      {elements.map((el, index) => (
+        <img key={index} src={el.src} alt="carousel" />
+      ))}
+    </Carousel>
+  );
+
+  expect(carousel.find(".sawa-slider-element")).toHaveLength(6);
+});

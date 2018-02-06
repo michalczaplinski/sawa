@@ -12,6 +12,7 @@ export default class Carousel extends React.Component {
         element: e,
         id: shortid.generate()
       })),
+      elementWidth: props.elementWidth,
       transitionNext: false,
       transitionPrev: false
     };
@@ -23,7 +24,7 @@ export default class Carousel extends React.Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.updateWidth);
-    this.updateWidth();
+    // this.updateWidth();
   }
 
   componentWillUnmount() {
@@ -60,13 +61,17 @@ export default class Carousel extends React.Component {
 
   next() {
     clearInterval(this.intervalId);
-    this.play();
+    if (this.props.autoplay) {
+      this.play();
+    }
     this.setState({ transitionNext: true });
   }
 
   prev() {
     clearInterval(this.intervalId);
-    this.play();
+    if (this.props.autoplay) {
+      this.play();
+    }
     this.setState({ transitionPrev: true });
   }
 
@@ -139,10 +144,12 @@ export default class Carousel extends React.Component {
   }
 }
 
-const { arrayOf, node, bool, number, string, oneOf } = PropTypes;
+const { arrayOf, node, bool, number, string, oneOf, element } = PropTypes;
 
 Carousel.propTypes = {
   autoplay: bool,
+  buttonPrev: element,
+  buttonNext: element,
   children: arrayOf(node).isRequired,
   direction: oneOf(["left", "right"]),
   marginWidth: number,
@@ -152,6 +159,8 @@ Carousel.propTypes = {
 
 Carousel.defaultProps = {
   autoplay: true,
+  buttonPrev: null,
+  buttonNext: null,
   direction: "left",
   marginWidth: 10,
   transitionDuration: 700,

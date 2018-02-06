@@ -2,7 +2,10 @@
   "name": "heron-carousel",
   "version": "0.0.1",
   "devDependencies": {
+    "@neutrinojs/jest": "^8.1.1",
     "@neutrinojs/react-components": "^8.1.1",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.17.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-prettier": "^2.9.0",
@@ -10,8 +13,10 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.6.1",
+    "jsdom": "^11.6.2",
     "neutrino": "^8.1.1",
-    "prettier": "^1.10.2"
+    "prettier": "^1.10.2",
+    "react-addons-test-utils": "^15.6.2"
   },
   "dependencies": {
     "prop-types": "^15.6.0",
@@ -21,7 +26,8 @@
     "source-map-support": "^0.5.3"
   },
   "scripts": {
-    "start": "neutrino start --use @neutrinojs/react-components",
-    "build": "neutrino build --use @neutrinojs/react-components"
+    "start": "neutrino start",
+    "build": "neutrino build",
+    "test": "neutrino test"
   }
 }

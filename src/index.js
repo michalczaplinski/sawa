@@ -2,7 +2,7 @@
 
 import React from "react";
 import { render } from "react-dom";
-import Carousel from "./Carousel";
+import Carousel from "./components/Carousel";
 
 const elements = [
   { src: "https://www.placecage.com/400/300" },
