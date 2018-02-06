@@ -15,11 +15,13 @@ export default class Carousel extends React.Component {
       transitionNext: false,
       transitionPrev: false
     };
+
+    this.play();
+
     this.updateWidth = this.updateWidth.bind(this);
   }
 
   componentDidMount() {
-    this.initialize();
     window.addEventListener("resize", this.updateWidth);
     this.updateWidth();
   }
@@ -29,7 +31,7 @@ export default class Carousel extends React.Component {
     window.removeEventListener("resize", this.updateWidth);
   }
 
-  initialize() {
+  play() {
     this.intervalId = setInterval(() => {
       this.next();
     }, 2000);
@@ -37,7 +39,7 @@ export default class Carousel extends React.Component {
 
   updateWidth() {
     this.setState({
-      elementWidth: document.getElementsByClassName("rc-slider-element")[0]
+      elementWidth: document.getElementsByClassName("sawa-slider-element")[0]
         .offsetWidth
     });
   }
@@ -58,13 +60,13 @@ export default class Carousel extends React.Component {
 
   next() {
     clearInterval(this.intervalId);
-    this.initialize();
+    this.play();
     this.setState({ transitionNext: true });
   }
 
   prev() {
     clearInterval(this.intervalId);
-    this.initialize();
+    this.play();
     this.setState({ transitionPrev: true });
   }
 
@@ -79,7 +81,9 @@ export default class Carousel extends React.Component {
     }
     return {
       transform: `translateX(${length}px)`,
-      transition: "transform 0.7s ease"
+      transitionProperty: "transform",
+      transitionDuration: "0.7s",
+      transitionTimingFunction: "ease"
     };
   }
 
@@ -93,8 +97,7 @@ export default class Carousel extends React.Component {
       <div
         style={{
           overflow: "hidden",
-          position: "relative",
-          marginBottom: 55
+          position: "relative"
         }}
       >
         <div style={wrapperStyle}>
@@ -112,7 +115,7 @@ export default class Carousel extends React.Component {
               } else if (this.state.transitionPrev) {
                 this.updateContentBackwards();
               } else {
-                console.log("this should not happen :D");
+                console.log("This should not happen! Please file a bug!");
               }
             }}
           >
@@ -124,7 +127,7 @@ export default class Carousel extends React.Component {
                   width: this.state.elementWidth
                 }}
                 key={child.id}
-                className="rc-slider-element"
+                className="sawa-slider-element"
               >
                 {child.element}
               </div>
@@ -136,7 +139,21 @@ export default class Carousel extends React.Component {
   }
 }
 
-const { arrayOf, node } = PropTypes;
+const { arrayOf, node, bool, number, string, oneOf } = PropTypes;
+
 Carousel.propTypes = {
-  children: arrayOf(node).isRequired
+  autoplay: bool,
+  children: arrayOf(node).isRequired,
+  direction: oneOf(["left", "right"]),
+  marginWidth: number,
+  transitionDuration: number,
+  transitionTimingFunction: string
+};
+
+Carousel.defaultProps = {
+  autoplay: true,
+  direction: "left",
+  marginWidth: 10,
+  transitionDuration: 700,
+  transitionTimingFunction: "ease"
 };

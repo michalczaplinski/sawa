@@ -15,7 +15,9 @@ const elements = [
 
 render(
   <Carousel>
-    {elements.map(el => <img src={el.src} alt="carousel" />)}
+    {elements.map((el, index) => (
+      <img key={index} src={el.src} alt="carousel" />
+    ))}
   </Carousel>,
   document.getElementById("root")
 );
