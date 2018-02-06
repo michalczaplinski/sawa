@@ -1,4 +1,4 @@
-/* global test, expect */
+/* global test, expect, document */
 
 import React from "react";
 import { mount } from "enzyme";
@@ -19,7 +19,8 @@ test("default Carousel", () => {
       {elements.map((el, index) => (
         <img key={index} src={el.src} alt="carousel" />
       ))}
-    </Carousel>
+    </Carousel>,
+    { attachTo: document.body }
   );
 
   expect(carousel.find(".sawa-slider-element")).toHaveLength(6);

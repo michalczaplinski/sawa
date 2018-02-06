@@ -1,4 +1,4 @@
-/* global window, document */
+/* global window */
 
 import React from "react";
 import PropTypes from "prop-types";
@@ -12,11 +12,11 @@ export default class Carousel extends React.Component {
         element: e,
         id: shortid.generate()
       })),
-      elementWidth: props.elementWidth,
       transitionNext: false,
       transitionPrev: false
     };
 
+    this.elements = [];
     this.play();
 
     this.updateWidth = this.updateWidth.bind(this);
@@ -24,7 +24,7 @@ export default class Carousel extends React.Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.updateWidth);
-    // this.updateWidth();
+    this.updateWidth();
   }
 
   componentWillUnmount() {
@@ -40,8 +40,7 @@ export default class Carousel extends React.Component {
 
   updateWidth() {
     this.setState({
-      elementWidth: document.getElementsByClassName("sawa-slider-element")[0]
-        .offsetWidth
+      elementWidth: this.elements[0].offsetWidth
     });
   }
 
@@ -120,11 +119,13 @@ export default class Carousel extends React.Component {
               } else if (this.state.transitionPrev) {
                 this.updateContentBackwards();
               } else {
-                console.log("This should not happen! Please file a bug!");
+                console.error(
+                  "This should not happen! Please file a bug: https://github.com/michalczaplinski/sawa"
+                );
               }
             }}
           >
-            {this.state.elements.map(child => (
+            {this.state.elements.map((child, index) => (
               <div
                 style={{
                   overflow: "hidden",
@@ -133,6 +134,9 @@ export default class Carousel extends React.Component {
                 }}
                 key={child.id}
                 className="sawa-slider-element"
+                ref={element => {
+                  this.elements[index] = element;
+                }}
               >
                 {child.element}
               </div>
