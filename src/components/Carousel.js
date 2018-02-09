@@ -77,36 +77,54 @@ export default class Carousel extends React.Component {
   sliderTrackStyle() {
     let length;
     if (this.state.transitionNext) {
-      length = `-${this.state.elementWidth}`;
+      length = `-${this.state.elementWidth + this.props.elementPaddingWidth}`;
     } else if (this.state.transitionPrev) {
-      length = this.state.elementWidth;
+      length = this.state.elementWidth + this.props.elementPaddingWidth;
     } else {
       return {};
     }
     return {
       transform: `translateX(${length}px)`,
       transitionProperty: "transform",
-      transitionDuration: "0.7s",
-      transitionTimingFunction: "ease"
+      transitionDuration: `${this.props.transitionDuration}ms`,
+      transitionTimingFunction: this.props.transitionTimingFunction
     };
   }
 
-  render() {
-    const wrapperStyle = {
-      width: this.state.elementWidth * 2,
+  wrapperStyle() {
+    const style = {
       overflow: "hidden",
       height: "100%"
     };
 
+    if (this.props.numElementsToShow === "adaptive") {
+      return {
+        ...style,
+        width: 10000,
+        marginLeft: `calc(-${this.state.elementWidth * 2.5}px + 50%)`
+      };
+    } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
+      return {
+        ...style,
+        width:
+          (this.state.elementWidth || this.props.elementWidth) *
+          this.props.numElementsToShow
+      };
+    }
+    throw new Error("Prop `elementsToShow` has an incorrect value");
+  }
+
+  render() {
     return (
       <div
         style={{
           position: "relative",
           display: "flex",
-          justifyContent: "center"
+          justifyContent: "center",
+          overflow: "hidden"
         }}
       >
-        <div style={wrapperStyle}>
+        <div style={this.wrapperStyle()}>
           <div
             style={{
               width: "100%",
@@ -132,7 +150,9 @@ export default class Carousel extends React.Component {
             {this.state.elements.map((child, index) => (
               <div
                 style={{
-                  width: this.state.elementWidth
+                  width: this.state.elementWidth,
+                  // The first item must have no margin
+                  marginLeft: index === 0 ? 0 : this.props.elementPaddingWidth
                 }}
                 key={child.id}
                 className="sawa-slider-element"
@@ -159,9 +179,10 @@ Carousel.propTypes = {
   centered: bool,
   children: arrayOf(node).isRequired,
   direction: oneOf(["left", "right"]),
-  marginWidth: number,
-  numElementsToShow: oneOf([1, 2, 3, 4, 5, 6, 7]),
-  transitionDuration: number,
+  elementWidth: number,
+  elementPaddingWidth: number,
+  numElementsToShow: oneOf([1, 2, 3, 4, 5, 6, 7, "adaptive"]),
+  transitionDuration: number, // in miliseconds
   transitionTimingFunction: string
 };
 
@@ -171,12 +192,13 @@ Carousel.defaultProps = {
   buttonNext: null,
   centered: true,
   direction: "left",
-  marginWidth: 10,
-  numElementsToShow: 2,
+  elementWidth: 0,
+  elementPaddingWidth: 10,
+  numElementsToShow: "adaptive",
   transitionDuration: 700,
   transitionTimingFunction: "ease"
 };
 
 /**
- * if num of elements to show is more than there are elements, this might be a problem
+ * Add the ability to make the
  */
