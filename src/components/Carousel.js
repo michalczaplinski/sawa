@@ -120,7 +120,7 @@ export default class Carousel extends React.Component {
                 this.updateContentBackwards();
               } else {
                 console.error(
-                  "This should not happen! Please file a bug: https://github.com/michalczaplinski/sawa"
+                  "This should not happen! Please file a bug: https://github.com/michalczaplinski/sawa/issues"
                 );
               }
             }}
@@ -154,9 +154,11 @@ Carousel.propTypes = {
   autoplay: bool,
   buttonPrev: element,
   buttonNext: element,
+  centered: bool,
   children: arrayOf(node).isRequired,
   direction: oneOf(["left", "right"]),
   marginWidth: number,
+  numElementsToShow: oneOf([1, 2, 3, 4, 5, 6, 7]),
   transitionDuration: number,
   transitionTimingFunction: string
 };
@@ -165,8 +167,14 @@ Carousel.defaultProps = {
   autoplay: true,
   buttonPrev: null,
   buttonNext: null,
+  centered: true,
   direction: "left",
   marginWidth: 10,
+  numElementsToShow: 2,
   transitionDuration: 700,
   transitionTimingFunction: "ease"
 };
+
+/**
+ * if num of elements to show is more than there are elements, this might be a problem
+ */
