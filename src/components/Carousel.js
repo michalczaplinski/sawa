@@ -93,15 +93,17 @@ export default class Carousel extends React.Component {
 
   render() {
     const wrapperStyle = {
-      width: "100000px",
-      marginLeft: `calc(-${this.state.elementWidth * 2.5}px + 50%)`
+      width: this.state.elementWidth * 2,
+      overflow: "hidden",
+      height: "100%"
     };
 
     return (
       <div
         style={{
-          overflow: "hidden",
-          position: "relative"
+          position: "relative",
+          display: "flex",
+          justifyContent: "center"
         }}
       >
         <div style={wrapperStyle}>
@@ -109,6 +111,8 @@ export default class Carousel extends React.Component {
             style={{
               width: "100%",
               height: "100%",
+              display: "flex",
+              justifyContent: "row",
               ...this.sliderTrackStyle()
             }}
             onTransitionEnd={() => {
@@ -128,8 +132,6 @@ export default class Carousel extends React.Component {
             {this.state.elements.map((child, index) => (
               <div
                 style={{
-                  overflow: "hidden",
-                  float: "left",
                   width: this.state.elementWidth
                 }}
                 key={child.id}
