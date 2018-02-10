@@ -17,7 +17,7 @@ export default class Carousel extends React.Component {
     };
 
     this.elements = [];
-    this.play();
+    if (props.autoplay) this.autoplay();
 
     this.updateWidth = this.updateWidth.bind(this);
   }
@@ -32,10 +32,14 @@ export default class Carousel extends React.Component {
     window.removeEventListener("resize", this.updateWidth);
   }
 
-  play() {
+  autoplay() {
     this.intervalId = setInterval(() => {
-      this.next();
-    }, 2000);
+      if (this.props.direction === "left") {
+        this.next();
+      } else {
+        this.prev();
+      }
+    }, this.props.delay);
   }
 
   updateWidth() {
@@ -61,7 +65,7 @@ export default class Carousel extends React.Component {
   next() {
     clearInterval(this.intervalId);
     if (this.props.autoplay) {
-      this.play();
+      this.autoplay();
     }
     this.setState({ transitionNext: true });
   }
@@ -69,7 +73,7 @@ export default class Carousel extends React.Component {
   prev() {
     clearInterval(this.intervalId);
     if (this.props.autoplay) {
-      this.play();
+      this.autoplay();
     }
     this.setState({ transitionPrev: true });
   }
@@ -101,7 +105,8 @@ export default class Carousel extends React.Component {
       return {
         ...style,
         width: 10000,
-        marginLeft: `calc(-${this.state.elementWidth * 2.5}px + 50%)`
+        marginLeft: `calc(-${this.state.elementWidth *
+          (this.state.elements.length / 2 - 0.5)}px + 50%)`
       };
     } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
       return {
@@ -118,12 +123,26 @@ export default class Carousel extends React.Component {
     return (
       <div
         style={{
-          position: "relative",
+          position: "absolute",
           display: "flex",
           justifyContent: "center",
-          overflow: "hidden"
+          overflow: "hidden",
+          maxWidth:
+            (this.state.elements.length - 1) * this.state.elementWidth ||
+            this.props.elementWidth
         }}
       >
+        {this.props.buttonPrev &&
+          React.cloneElement(this.props.buttonPrev, {
+            style: { position: "absolute", zIndex: 9999, left: 0 },
+            onClick: () => this.prev()
+          })}
+        {this.props.buttonNext &&
+          React.cloneElement(this.props.buttonNext, {
+            style: { position: "absolute", zIndex: 9999, right: 0 },
+            onClick: () => this.next()
+          })}
+
         <div style={this.wrapperStyle()}>
           <div
             style={{
@@ -176,7 +195,8 @@ Carousel.propTypes = {
   autoplay: bool,
   buttonPrev: element,
   buttonNext: element,
-  centered: bool,
+  // centered: bool,
+  delay: number,
   children: arrayOf(node).isRequired,
   direction: oneOf(["left", "right"]),
   elementWidth: number,
@@ -188,9 +208,10 @@ Carousel.propTypes = {
 
 Carousel.defaultProps = {
   autoplay: true,
-  buttonPrev: null,
-  buttonNext: null,
-  centered: true,
+  buttonPrev: <button> prev </button>,
+  buttonNext: <button> next </button>,
+  // centered: true,
+  delay: 2000,
   direction: "left",
   elementWidth: 0,
   elementPaddingWidth: 10,
@@ -200,5 +221,8 @@ Carousel.defaultProps = {
 };
 
 /**
- * Add the ability to make the
+ *
+ * add ability to have adaptive + responsive mode
+ * test with react 15
+ *
  */
