@@ -12,7 +12,11 @@ export default class Carousel extends React.Component {
         element: e,
         id: shortid.generate()
       })),
-      numSlides: this.props.children.length,
+      totalPadding:
+        props.numElementsToShow === "adaptive"
+          ? (props.children.length - 2) * props.elementPaddingWidth
+          : (props.numElementsToShow - 1) * props.elementPaddingWidth,
+      numSlides: props.children.length,
       transitionNext: false,
       transitionPrev: false
     };
@@ -91,14 +95,17 @@ export default class Carousel extends React.Component {
         ...style,
         width: 10000,
         marginLeft: `calc(-${this.state.elementWidth *
-          (this.state.numSlides / 2 - 0.5)}px + 50%)`
+          (this.state.numSlides - 1.5) + // TODO: change the hardcoded "1.5" perhaps
+          this.state.totalPadding}px + 50%)`
       };
     } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
       return {
         ...style,
         width:
+          // TODO: This still needs to be adjusted so the there is not empty slide when "prev"
           (this.state.elementWidth || this.props.elementWidth) *
-          this.props.numElementsToShow
+            this.props.numElementsToShow +
+          this.state.totalPadding
       };
     }
     throw new Error("Prop `elementsToShow` has an incorrect value");
@@ -141,6 +148,16 @@ export default class Carousel extends React.Component {
   }
 
   render() {
+    const {
+      elements,
+      elementWidth,
+      totalPadding,
+      numSlides,
+      transitionNext,
+      transitionPrev
+    } = this.state;
+
+    const { buttonPrev, buttonNext } = this.props;
     return (
       <div
         style={{
@@ -149,17 +166,17 @@ export default class Carousel extends React.Component {
           justifyContent: "center",
           overflow: "hidden",
           maxWidth:
-            (this.state.numSlides - 1) * this.state.elementWidth ||
-            this.props.elementWidth
+            (numSlides - 1) * (elementWidth || this.props.elementWidth) +
+            totalPadding
         }}
       >
-        {this.props.buttonPrev &&
-          React.cloneElement(this.props.buttonPrev, {
+        {buttonPrev &&
+          React.cloneElement(buttonPrev, {
             style: { position: "absolute", zIndex: 9999, left: 0 },
             onClick: () => this.prev()
           })}
-        {this.props.buttonNext &&
-          React.cloneElement(this.props.buttonNext, {
+        {buttonNext &&
+          React.cloneElement(buttonNext, {
             style: { position: "absolute", zIndex: 9999, right: 0 },
             onClick: () => this.next()
           })}
@@ -176,9 +193,9 @@ export default class Carousel extends React.Component {
             onTransitionEnd={() => {
               // hack so that this.updateContentForward in only called once after
               // the transition.
-              if (this.state.transitionNext) {
+              if (transitionNext) {
                 this.updateContentForward();
-              } else if (this.state.transitionPrev) {
+              } else if (transitionPrev) {
                 this.updateContentBackwards();
               } else {
                 console.error(
@@ -187,7 +204,7 @@ export default class Carousel extends React.Component {
               }
             }}
           >
-            {this.state.elements.map(this.renderSlide)}
+            {elements.map(this.renderSlide)}
           </div>
         </div>
       </div>
@@ -221,14 +238,24 @@ Carousel.defaultProps = {
   direction: "left",
   elementWidth: 0,
   elementPaddingWidth: 10,
-  numElementsToShow: 2,
+  numElementsToShow: 3,
   transitionDuration: 700,
   transitionTimingFunction: "ease"
 };
 
 /**
+ *  TODO
+ *  - add ability to have adaptive + responsive mode
+ *  - test with react 15
+ *  - simplify padding and width calcuations
+ *  - cross browser test
+ *  - add touch
+ *  - try to shed a bit of the size
  *
- * add ability to have adaptive + responsive mode
- * test with react 15
+ *  - modes:
+ *    • 1, 2, 3 slides
+ *    • centered / not centered
+ *    • iTunes carousel mode
+ *    • (?) adaptive height mode (fixed number of images)
  *
  */
