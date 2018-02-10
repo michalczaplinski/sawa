@@ -8,10 +8,11 @@ export default class Carousel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      elements: props.children.map(e => ({
+      elements: props.children.concat(props.children).map(e => ({
         element: e,
         id: shortid.generate()
       })),
+      numSlides: this.props.children.length,
       transitionNext: false,
       transitionPrev: false
     };
@@ -20,6 +21,7 @@ export default class Carousel extends React.Component {
     if (props.autoplay) this.autoplay();
 
     this.updateWidth = this.updateWidth.bind(this);
+    this.renderSlide = this.renderSlide.bind(this);
   }
 
   componentDidMount() {
@@ -78,6 +80,30 @@ export default class Carousel extends React.Component {
     this.setState({ transitionPrev: true });
   }
 
+  wrapperStyle() {
+    const style = {
+      overflow: "hidden",
+      height: "100%"
+    };
+
+    if (this.props.numElementsToShow === "adaptive") {
+      return {
+        ...style,
+        width: 10000,
+        marginLeft: `calc(-${this.state.elementWidth *
+          (this.state.numSlides / 2 - 0.5)}px + 50%)`
+      };
+    } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
+      return {
+        ...style,
+        width:
+          (this.state.elementWidth || this.props.elementWidth) *
+          this.props.numElementsToShow
+      };
+    }
+    throw new Error("Prop `elementsToShow` has an incorrect value");
+  }
+
   sliderTrackStyle() {
     let length;
     if (this.state.transitionNext) {
@@ -95,28 +121,23 @@ export default class Carousel extends React.Component {
     };
   }
 
-  wrapperStyle() {
-    const style = {
-      overflow: "hidden",
-      height: "100%"
-    };
-
-    if (this.props.numElementsToShow === "adaptive") {
-      return {
-        ...style,
-        width: 10000,
-        marginLeft: `calc(-${this.state.elementWidth *
-          (this.state.elements.length / 2 - 0.5)}px + 50%)`
-      };
-    } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
-      return {
-        ...style,
-        width:
-          (this.state.elementWidth || this.props.elementWidth) *
-          this.props.numElementsToShow
-      };
-    }
-    throw new Error("Prop `elementsToShow` has an incorrect value");
+  renderSlide(slide, index) {
+    return (
+      <div
+        style={{
+          width: this.state.elementWidth,
+          // The first item must have no margin
+          marginLeft: index === 0 ? 0 : this.props.elementPaddingWidth
+        }}
+        key={slide.id}
+        className="sawa-slider-element"
+        ref={element => {
+          this.elements[index] = element;
+        }}
+      >
+        {slide.element}
+      </div>
+    );
   }
 
   render() {
@@ -128,7 +149,7 @@ export default class Carousel extends React.Component {
           justifyContent: "center",
           overflow: "hidden",
           maxWidth:
-            (this.state.elements.length - 1) * this.state.elementWidth ||
+            (this.state.numSlides - 1) * this.state.elementWidth ||
             this.props.elementWidth
         }}
       >
@@ -166,22 +187,7 @@ export default class Carousel extends React.Component {
               }
             }}
           >
-            {this.state.elements.map((child, index) => (
-              <div
-                style={{
-                  width: this.state.elementWidth,
-                  // The first item must have no margin
-                  marginLeft: index === 0 ? 0 : this.props.elementPaddingWidth
-                }}
-                key={child.id}
-                className="sawa-slider-element"
-                ref={element => {
-                  this.elements[index] = element;
-                }}
-              >
-                {child.element}
-              </div>
-            ))}
+            {this.state.elements.map(this.renderSlide)}
           </div>
         </div>
       </div>
@@ -207,7 +213,7 @@ Carousel.propTypes = {
 };
 
 Carousel.defaultProps = {
-  autoplay: true,
+  autoplay: false,
   buttonPrev: <button> prev </button>,
   buttonNext: <button> next </button>,
   // centered: true,
@@ -215,7 +221,7 @@ Carousel.defaultProps = {
   direction: "left",
   elementWidth: 0,
   elementPaddingWidth: 10,
-  numElementsToShow: "adaptive",
+  numElementsToShow: 2,
   transitionDuration: 700,
   transitionTimingFunction: "ease"
 };
