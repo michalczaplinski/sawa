@@ -245,17 +245,14 @@ Carousel.defaultProps = {
 
 /**
  *  TODO
+ *  - fix the first slide
+ *  - fix the onClicks (debounce or something)
+ *
  *  - add ability to have adaptive + responsive mode
  *  - test with react 15
  *  - simplify padding and width calcuations
  *  - cross browser test
  *  - add touch
  *  - try to shed a bit of the size
- *
- *  - modes:
- *    • 1, 2, 3 slides
- *    • centered / not centered
- *    • iTunes carousel mode
- *    • (?) adaptive height mode (fixed number of images)
  *
  */
