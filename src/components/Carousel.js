@@ -4,6 +4,19 @@ import React from "react";
 import PropTypes from "prop-types";
 import shortid from "shortid";
 
+const triggerEvent = (target, type, callback) => {
+  const doc = window.document;
+  if (doc.createEvent) {
+    const event = doc.createEvent("HTMLEvents");
+    event.initEvent(type, true, true);
+    target.dispatchEvent(event);
+  } else {
+    const event = doc.createEventObject();
+    target.fireEvent(`on${type}`, event);
+  }
+  callback();
+};
+
 export default class Carousel extends React.Component {
   constructor(props) {
     super(props);
@@ -12,6 +25,7 @@ export default class Carousel extends React.Component {
         element: e,
         id: shortid.generate()
       })),
+      elementWidth: props.elementWidth,
       totalPadding:
         props.numElementsToShow === "adaptive"
           ? (props.children.length - 2) * props.elementPaddingWidth
@@ -30,7 +44,9 @@ export default class Carousel extends React.Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.updateWidth);
-    this.updateWidth();
+    setTimeout(() => {
+      triggerEvent(window, "resize", () => this.updateWidth);
+    }, 0);
   }
 
   componentWillUnmount() {
@@ -103,8 +119,7 @@ export default class Carousel extends React.Component {
         ...style,
         width:
           // TODO: This still needs to be adjusted so the there is not empty slide when "prev"
-          (this.state.elementWidth || this.props.elementWidth) *
-            this.props.numElementsToShow +
+          this.state.elementWidth * this.props.numElementsToShow +
           this.state.totalPadding
       };
     }
@@ -165,9 +180,7 @@ export default class Carousel extends React.Component {
           display: "flex",
           justifyContent: "center",
           overflow: "hidden",
-          maxWidth:
-            (numSlides - 1) * (elementWidth || this.props.elementWidth) +
-            totalPadding
+          maxWidth: (numSlides - 1) * elementWidth + totalPadding
         }}
       >
         {buttonPrev &&
@@ -236,7 +249,7 @@ Carousel.defaultProps = {
   // centered: true,
   delay: 2000,
   direction: "left",
-  elementWidth: 0,
+  elementWidth: 1000,
   elementPaddingWidth: 10,
   numElementsToShow: 3,
   transitionDuration: 700,
