@@ -17,6 +17,18 @@ const triggerEvent = (target, type, callback) => {
   callback();
 };
 
+const CenterWrapper = ({ children }) => (
+  <div
+    style={{
+      display: "flex",
+      flexFlow: "row nowrap",
+      justifyContent: "center"
+    }}
+  >
+    {children}
+  </div>
+);
+
 export default class Carousel extends React.Component {
   constructor(props) {
     super(props);
@@ -27,6 +39,7 @@ export default class Carousel extends React.Component {
       })),
       elementWidth: props.elementWidth,
       totalPadding:
+        // TODO: update to take into account maxSlides
         props.numElementsToShow === "adaptive"
           ? (props.children.length - 2) * props.elementPaddingWidth
           : (props.numElementsToShow - 1) * props.elementPaddingWidth,
@@ -45,7 +58,7 @@ export default class Carousel extends React.Component {
   componentDidMount() {
     window.addEventListener("resize", this.updateWidth);
     setTimeout(() => {
-      triggerEvent(window, "resize", () => this.updateWidth);
+      triggerEvent(window, "resize", () => this.updateWidth());
     }, 0);
   }
 
@@ -111,7 +124,7 @@ export default class Carousel extends React.Component {
         ...style,
         width: 10000,
         marginLeft: `calc(-${this.state.elementWidth *
-          (this.state.numSlides - 1.5) + // TODO: change the hardcoded "1.5" perhaps
+          (this.state.numSlides - 1.5) + // TODO: change the hardcoded "1.5" when not centered
           this.state.totalPadding}px + 50%)`
       };
     } else if ([1, 2, 3, 4, 5, 6, 7].includes(this.props.numElementsToShow)) {
@@ -147,7 +160,6 @@ export default class Carousel extends React.Component {
     return (
       <div
         style={{
-          width: this.state.elementWidth,
           // The first item must have no margin
           marginLeft: index === 0 ? 0 : this.props.elementPaddingWidth
         }}
@@ -172,14 +184,15 @@ export default class Carousel extends React.Component {
       transitionPrev
     } = this.state;
 
-    const { buttonPrev, buttonNext } = this.props;
-    return (
+    const { buttonPrev, buttonNext, centered } = this.props;
+    const output = (
       <div
         style={{
           position: "absolute",
           display: "flex",
           justifyContent: "center",
-          overflow: "hidden",
+          overflow: "auto",
+          width: "100%",
           maxWidth: (numSlides - 1) * elementWidth + totalPadding
         }}
       >
@@ -222,6 +235,11 @@ export default class Carousel extends React.Component {
         </div>
       </div>
     );
+
+    if (centered) {
+      return <CenterWrapper> {output} </CenterWrapper>;
+    }
+    return output;
   }
 }
 
@@ -231,41 +249,67 @@ Carousel.propTypes = {
   autoplay: bool,
   buttonPrev: element,
   buttonNext: element,
-  // centered: bool,
+  centered: bool,
   delay: number,
   children: arrayOf(node).isRequired,
   direction: oneOf(["left", "right"]),
   elementWidth: number,
   elementPaddingWidth: number,
+  maxNumElements: number,
+  maxWidthAdaptive: number,
   numElementsToShow: oneOf([1, 2, 3, 4, 5, 6, 7, "adaptive"]),
   transitionDuration: number, // in miliseconds
   transitionTimingFunction: string
 };
 
 Carousel.defaultProps = {
-  autoplay: false,
-  buttonPrev: <button> prev </button>,
-  buttonNext: <button> next </button>,
-  // centered: true,
+  autoplay: true,
+  buttonPrev: null,
+  buttonNext: null,
+  centered: true,
   delay: 2000,
   direction: "left",
   elementWidth: 1000,
   elementPaddingWidth: 10,
-  numElementsToShow: 3,
+  maxNumElements: 1,
+  maxWidthAdaptive: 600,
+  numElementsToShow: 1,
   transitionDuration: 700,
   transitionTimingFunction: "ease"
 };
 
 /**
- *  TODO
- *  - fix the first slide
- *  - fix the onClicks (debounce or something)
  *
- *  - add ability to have adaptive + responsive mode
- *  - test with react 15
+ *  - fix the adaptive mode
+ *  - fix the first slide
+ *  - add the dynamic height when the numElementsToShow is defined
  *  - simplify padding and width calcuations
+ *  - fix the onClicks (debounce or something)
+ *  - allow the user to set custom styles that will be merged with existing styles
+ *  - test SSR
+ *  - test with react 15
  *  - cross browser test
+ *  - test with different kinds of content
  *  - add touch
  *  - try to shed a bit of the size
+ *
+ *  - maybe move the CSS to a separate file (so that SSR & responsiveness works well) ?
+ *
+ *  REQUIREMENTS:
+ *  - all elements must be the same height / width
+ *  - if you want SSR, you must specify initial element width
+ *
+ *
+ *
+ *    switch(numElementsToShow):
+ *      case(number):
+ *        - centered / not
+ *        - adaptiveHeight / not
+ *        if(adaptiveHeight):
+ *          - maxHeight
+ *          - minHeight
+ *      case("adaptive"):
+ *        - centered / not
+ *        - maxNumElementsToShow
  *
  */

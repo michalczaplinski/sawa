@@ -4,6 +4,9 @@
   "devDependencies": {
     "@neutrinojs/jest": "^8.1.1",
     "@neutrinojs/react-components": "^8.1.1",
+    "@storybook/addon-options": "^3.3.13",
+    "@storybook/react": "^3.3.13",
+    "babel-core": "^6.26.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.17.0",
@@ -16,7 +19,8 @@
     "jsdom": "^11.6.2",
     "neutrino": "^8.1.1",
     "prettier": "^1.10.2",
-    "react-addons-test-utils": "^15.6.2"
+    "react-addons-test-utils": "^15.6.2",
+    "react-syntax-highlighter": "^7.0.0"
   },
   "dependencies": {
     "prop-types": "^15.6.0",
@@ -28,6 +32,7 @@
   "scripts": {
     "start": "neutrino start",
     "build": "neutrino build",
-    "test": "neutrino test"
+    "test": "neutrino test",
+    "storybook": "start-storybook -p 9001 -c .storybook"
   }
 }
